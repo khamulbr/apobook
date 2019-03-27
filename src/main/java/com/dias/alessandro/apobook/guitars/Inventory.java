@@ -12,8 +12,9 @@ public class Inventory {
         guitars = new LinkedList();
     }
 
-    public void addGuitar(String serialNumber, Builder builder, String model, Type type, Wood backWood, Wood topWood, double price) {
-        Guitar guitar = new Guitar(serialNumber, builder, model, type, backWood, topWood, price);
+    public void addGuitar(String serialNumber, Builder builder, String model, Type type, Wood backWood, Wood topWood, double price, int numStrings) {
+        GuitarSpec guitarSpec = new GuitarSpec( builder, model, type, backWood, topWood, numStrings);
+        Guitar guitar = new Guitar(serialNumber,price, guitarSpec);
         guitars.add(guitar);
     }
 
@@ -27,24 +28,32 @@ public class Inventory {
         return null;
     }
 
-    public Guitar search(Guitar searchGuitar) {
+    public LinkedList search(GuitarSpec searchGuitar) {
+        LinkedList matchingGuitars = new LinkedList();
+
         for (Iterator i = guitars.iterator(); i.hasNext(); ) {
             Guitar guitar = (Guitar) i.next();
+            GuitarSpec guitarSpec = guitar.getGuitarSpec();
 
-            if (searchGuitar.getBuilder() != guitar.getBuilder())
-                continue;
-            String model = searchGuitar.getModel().toLowerCase();
-            if (model != null && (!model.equals("")) && !model.equals(guitar.getModel().toLowerCase())) {
-                continue;
-            }
-            if (searchGuitar.getType() != guitar.getType())
-                continue;
-            if (searchGuitar.getBackWood() != guitar.getBackWood())
-                continue;
-            if (searchGuitar.getTopWood() != guitar.getTopWood())
-                continue;
-            return guitar;
+            if (matches(searchGuitar, guitarSpec))
+                matchingGuitars.add(guitar);
         }
-        return null;
+        return matchingGuitars;
+    }
+
+    private boolean matches(GuitarSpec searchGuitar, GuitarSpec guitarSpec) {
+        if (searchGuitar.getBuilder() != guitarSpec.getBuilder())
+            return false;
+        String model = searchGuitar.getModel().toLowerCase();
+        if (model != null && (!model.equals("")) && !model.equals(guitarSpec.getModel().toLowerCase())) {
+            return false;
+        }
+        if (searchGuitar.getType() != guitarSpec.getType())
+            return false;
+        if (searchGuitar.getBackWood() != guitarSpec.getBackWood())
+            return false;
+        if (searchGuitar.getTopWood() != guitarSpec.getTopWood())
+            return false;
+        return true;
     }
 }
